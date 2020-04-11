@@ -2,8 +2,8 @@ pnmap
 =====
 
 Passive Network Mapper is a completely passive network mapper. It will
-gather information about hosts participating in an ethernet network
-segment in a passive way.
+passively and undetectable gather information about hosts participating in an ethernet network
+segment.
 
 Features
 --------
