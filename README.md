@@ -16,13 +16,12 @@ Features
 - Detects DHCP vendors
 - Detects SSDP user agents
 - Displays ethernet OUI vendor
+- no cgo needed.
 
 Requirements
 ------------
 
-A working Go environment is required for compiling.
-
-pnmap uses libpcap and requires the `libpcap0.8-dev` package.
+A working Go environment is required for compiling and a Linux host is required for running.
 
 Compiling
 ---------

@@ -6,9 +6,13 @@ import (
 	"log"
 	"net"
 	"os"
+	"syscall"
+	"time"
 
+	pcapreader "github.com/evnix/pcap-reader"
 	"github.com/google/gopacket"
-	"github.com/google/gopacket/pcap"
+	"github.com/google/gopacket/layers"
+	"github.com/mdlayher/raw"
 	"github.com/spf13/cobra"
 )
 
@@ -59,22 +63,34 @@ func list(_ *cobra.Command, _ []string) {
 }
 
 func listen(deviceName string, out chan gopacket.Packet) {
-	handle, err := pcap.OpenLive(deviceName, 65535, false, pcap.BlockForever)
+	intf, err := net.InterfaceByName(deviceName)
 	if err != nil {
-		fmt.Printf("Error opening device %s: %s\n", deviceName, err.Error())
-		os.Exit(1)
+		log.Printf("error: %s", err.Error())
 	}
 
-	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+	conn, err := raw.ListenPacket(intf, syscall.ETH_P_ALL, nil)
+	if err != nil {
+		log.Printf("error: %s", err.Error())
+	}
+
+	buffer := make([]byte, 65536)
 
 	for {
-		packet, err := packetSource.NextPacket()
+		_, addr, err := conn.ReadFrom(buffer)
 		if err != nil {
-			fmt.Printf("Error on %s: %s\n", deviceName, err.Error())
-			os.Exit(1)
-		} else if err == nil {
-			out <- packet
+			log.Fatalf("error: %s", err.Error())
+			break
 		}
+
+		// Throw away packets with no source.
+		if addr.String() == "00:00:00:00:00:00" {
+			continue
+		}
+
+		packet := gopacket.NewPacket(buffer, layers.LayerTypeEthernet, gopacket.Default)
+		packet.Metadata().Timestamp = time.Now()
+
+		out <- packet
 	}
 }
 
@@ -99,13 +115,14 @@ func monitor(_ *cobra.Command, _ []string) {
 	i.hostChan = make(chan *NIC, 10)
 
 	go func() {
-		for {
-			select {
-			case packet := <-packets:
-				go i.NewPacket(packet)
-			case nic := <-i.hostChan:
-				g.updateNIC(nic)
-			}
+		for packet := range packets {
+			i.NewPacket(packet)
+		}
+	}()
+
+	go func() {
+		for nic := range i.hostChan {
+			g.updateNIC(nic)
 		}
 	}()
 
@@ -115,13 +132,12 @@ func monitor(_ *cobra.Command, _ []string) {
 func simulate(_ *cobra.Command, args []string) {
 	packets := make(chan gopacket.Packet, 10)
 
-	handle, err := pcap.OpenOffline(args[0])
+	reader := pcapreader.PCapReader{}
+	err := reader.Open(args[0])
 	if err != nil {
-		fmt.Printf("Error: %s\n", err.Error())
-		os.Exit(1)
+		log.Fatalf(err.Error())
 	}
-
-	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+	defer reader.Close()
 
 	i := newIntel()
 	g := newGUI()
@@ -130,11 +146,13 @@ func simulate(_ *cobra.Command, args []string) {
 
 	go func() {
 		for {
-			packet, err := packetSource.NextPacket()
-			if err != nil && err == io.EOF {
+			header, data, err := reader.ReadNextPacket()
+			if err == io.EOF {
 				break
 			}
 
+			packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.Default)
+			packet.Metadata().Timestamp = time.Unix(int64(header.TsSec), int64(header.TsUsec))
 			packets <- packet
 		}
 	}()
