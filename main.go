@@ -152,7 +152,7 @@ func simulate(_ *cobra.Command, args []string) {
 			}
 
 			packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.Default)
-			packet.Metadata().Timestamp = time.Unix(int64(header.TsSec), int64(header.TsUsec))
+			packet.Metadata().Timestamp = time.Unix(int64(header.TsSec), int64(header.TsUsec)*1000)
 			packets <- packet
 		}
 	}()
