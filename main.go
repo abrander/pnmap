@@ -13,6 +13,7 @@ import (
 	pcapreader "github.com/evnix/pcap-reader"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"github.com/google/gopacket/pcapgo"
 	"github.com/mdlayher/raw"
 	"github.com/spf13/cobra"
 )
@@ -25,6 +26,8 @@ var (
 	interfaces *[]string
 
 	hostInterfaces []net.Interface
+
+	unknown string
 )
 
 func init() {
@@ -42,6 +45,7 @@ func init() {
 		Short: "Monitor all interfaces for Probe Requests",
 		Run:   monitor,
 	}
+	monitorCmd.Flags().StringVarP(&unknown, "unknown", "u", "", "Path to write unknown packets to")
 	rootCmd.AddCommand(monitorCmd)
 
 	simulateCmd := &cobra.Command{
@@ -77,7 +81,7 @@ func listen(deviceName string, out chan gopacket.Packet) {
 	buffer := make([]byte, 65536)
 
 	for {
-		_, addr, err := conn.ReadFrom(buffer)
+		l, addr, err := conn.ReadFrom(buffer)
 		if err != nil {
 			log.Fatalf("error: %s", err.Error())
 			break
@@ -88,8 +92,10 @@ func listen(deviceName string, out chan gopacket.Packet) {
 			continue
 		}
 
-		packet := gopacket.NewPacket(buffer, layers.LayerTypeEthernet, gopacket.Default)
+		packet := gopacket.NewPacket(buffer[0:l], layers.LayerTypeEthernet, gopacket.Default)
 		packet.Metadata().Timestamp = time.Now()
+		packet.Metadata().CaptureInfo.CaptureLength = l
+		packet.Metadata().CaptureInfo.Length = l
 
 		if ethernetLayer := packet.Layer(layers.LayerTypeEthernet); ethernetLayer != nil {
 			eth := ethernetLayer.(*layers.Ethernet)
@@ -118,6 +124,22 @@ func monitor(_ *cobra.Command, _ []string) {
 		go listen(i, packets)
 	}
 
+	var unknownWriter *pcapgo.Writer
+	if unknown != "" {
+		f, err := os.OpenFile(unknown, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0622)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+		defer f.Close()
+
+		unknownWriter = pcapgo.NewWriter(f)
+
+		pos, _ := f.Seek(0, 2)
+		if pos == 0 {
+			unknownWriter.WriteFileHeader(65536, layers.LinkTypeEthernet)
+		}
+	}
+
 	i := newIntel()
 	g := newGUI()
 
@@ -125,7 +147,9 @@ func monitor(_ *cobra.Command, _ []string) {
 
 	go func() {
 		for packet := range packets {
-			i.NewPacket(packet)
+			if !i.NewPacket(packet) && unknownWriter != nil {
+				unknownWriter.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+			}
 		}
 	}()
 

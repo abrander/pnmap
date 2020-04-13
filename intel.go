@@ -48,10 +48,10 @@ func (i *intel) getNIC(addr []byte) *NIC {
 	return nic
 }
 
-func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) {
+func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 	dhcpv4 := layer.(*layers.DHCPv4)
 	if dhcpv4.Operation != layers.DHCPOpRequest {
-		return
+		return false
 	}
 
 	for _, o := range dhcpv4.Options {
@@ -64,9 +64,11 @@ func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) {
 			nic.Hostnames.add(string(o.Data))
 		}
 	}
+
+	return true
 }
 
-func (i *intel) arp(source net.HardwareAddr, layer gopacket.Layer) {
+func (i *intel) arp(source net.HardwareAddr, layer gopacket.Layer) bool {
 	arp := layer.(*layers.ARP)
 
 	nic := i.getNIC(source)
@@ -76,10 +78,14 @@ func (i *intel) arp(source net.HardwareAddr, layer gopacket.Layer) {
 		if ip != "0.0.0.0" {
 			nic.IPs.add(ip)
 		}
+
+		return true
 	}
+
+	return false
 }
 
-func (i *intel) ipv6(source net.HardwareAddr, layer gopacket.Layer) {
+func (i *intel) ipv6(source net.HardwareAddr, layer gopacket.Layer) bool {
 	ipv6 := layer.(*layers.IPv6)
 
 	nic := i.getNIC(source)
@@ -87,22 +93,24 @@ func (i *intel) ipv6(source net.HardwareAddr, layer gopacket.Layer) {
 	if ip := ipv6.SrcIP.String(); ip != "::" {
 		nic.IPs.add(ip)
 	}
+
+	return false
 }
 
-func (i *intel) ipv4(source net.HardwareAddr, layer gopacket.Layer) {
+func (i *intel) ipv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 	ipv4 := layer.(*layers.IPv4)
 
 	nic := i.getNIC(source)
 
 	ip := ipv4.SrcIP.String()
-	if ip == "0.0.0.0" {
-		return
+	if ip != "0.0.0.0" {
+		nic.IPs.add(ip)
 	}
 
-	nic.IPs.add(ip)
+	return false
 }
 
-func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) {
+func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 	udp := layer.(*layers.UDP)
 	nic := i.getNIC(source)
 
@@ -110,7 +118,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) {
 	case 1900:
 		req, err := http.ReadRequest(bufio.NewReader(bytes.NewReader(udp.Payload)))
 		if err != nil {
-			return
+			return false
 		}
 
 		ua := req.Header.Get("user-agent")
@@ -118,14 +126,20 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) {
 			nic.userAgents.add(ua)
 		}
 
+		return true
+
 	case 57621:
 		if bytes.HasPrefix(udp.Payload, []byte("SpotUdp")) {
 			nic.applications.add("Spotify")
+
+			return true
 		}
 	}
+
+	return false
 }
 
-func (i *intel) NewPacket(packet gopacket.Packet) {
+func (i *intel) NewPacket(packet gopacket.Packet) bool {
 	if ethernetLayer := packet.Layer(layers.LayerTypeEthernet); ethernetLayer != nil {
 		ethernet := ethernetLayer.(*layers.Ethernet)
 
@@ -134,6 +148,8 @@ func (i *intel) NewPacket(packet gopacket.Packet) {
 		nic.lastSeen = packet.Metadata().Timestamp
 		nic.seen++
 
-		i.mux.process(packet)
+		return i.mux.process(packet)
 	}
+
+	return false
 }
