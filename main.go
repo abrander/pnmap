@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -100,9 +99,8 @@ func listen(deviceName string, out chan gopacket.Packet) {
 		if ethernetLayer := packet.Layer(layers.LayerTypeEthernet); ethernetLayer != nil {
 			eth := ethernetLayer.(*layers.Ethernet)
 
-			// Filter unicast traffic to the listening station. This
-			// should leave just broadcast and multicast traffic.
-			if !bytes.Equal(eth.DstMAC, intf.HardwareAddr) {
+			// We're only interested in group traffic.
+			if eth.DstMAC[0]&0x01 > 0 {
 				out <- packet
 			}
 		}
