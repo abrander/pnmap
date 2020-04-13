@@ -124,7 +124,7 @@ func monitor(_ *cobra.Command, _ []string) {
 
 	var unknownWriter *pcapgo.Writer
 	if unknown != "" {
-		f, err := os.OpenFile(unknown, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0622)
+		f, err := os.OpenFile(unknown, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
 			log.Fatalf(err.Error())
 		}
