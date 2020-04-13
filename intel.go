@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -115,6 +116,8 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 	nic := i.getNIC(source)
 
 	switch udp.DstPort {
+
+	// SSDP
 	case 1900:
 		req, err := http.ReadRequest(bufio.NewReader(bytes.NewReader(udp.Payload)))
 		if err != nil {
@@ -128,6 +131,19 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 		return true
 
+	// Dropbox
+	case 17500:
+		dummy := make(map[string]interface{})
+		err := json.Unmarshal(udp.Payload, &dummy)
+		if err == nil {
+			// If we can decode a JSON payload, we assume it's
+			// from Dropbox.
+			nic.applications.add("Dropbox")
+
+			return true
+		}
+
+	// Spotify
 	case 57621:
 		if bytes.HasPrefix(udp.Payload, []byte("SpotUdp")) {
 			nic.applications.add("Spotify")

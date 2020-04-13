@@ -16,6 +16,7 @@ Features
 - Detects DHCP vendors
 - Detects SSDP user agents
 - Detects clients running Spotify
+- Detects Dropbox client
 - Displays ethernet OUI vendor
 - no cgo needed.
 
