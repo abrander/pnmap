@@ -7,13 +7,14 @@ import (
 
 // NIC contains information about an ethernet station.
 type NIC struct {
-	MAC        string
-	IPs        stringSlice
-	Hostnames  stringSlice
-	userAgents stringSlice
-	vendor     stringSlice
-	seen       int
-	lastSeen   time.Time
+	MAC          string
+	IPs          stringSlice
+	Hostnames    stringSlice
+	userAgents   stringSlice
+	vendor       stringSlice
+	applications stringSlice
+	seen         int
+	lastSeen     time.Time
 }
 
 func mac(addr []byte) string {
@@ -42,6 +43,7 @@ func (n *NIC) String() string {
 	output += fmt.Sprintf("Hostnames: %v\n", n.Hostnames)
 	output += fmt.Sprintf("User agents: %v\n", n.userAgents)
 	output += fmt.Sprintf("Vendor: %v\n", n.vendor)
+	output += fmt.Sprintf("Applications: %v", n.applications)
 
 	return output
 }

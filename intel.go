@@ -28,7 +28,7 @@ func newIntel() *intel {
 	i.mux.add(layers.LayerTypeDHCPv4, i.dhcpv4)
 	i.mux.add(layers.LayerTypeIPv4, i.ipv4)
 	i.mux.add(layers.LayerTypeIPv6, i.ipv6)
-	i.mux.add(layers.LayerTypeUDP, i.ssdp)
+	i.mux.add(layers.LayerTypeUDP, i.udp)
 
 	return i
 }
@@ -102,10 +102,12 @@ func (i *intel) ipv4(source net.HardwareAddr, layer gopacket.Layer) {
 	nic.IPs.add(ip)
 }
 
-func (i *intel) ssdp(source net.HardwareAddr, layer gopacket.Layer) {
+func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) {
 	udp := layer.(*layers.UDP)
+	nic := i.getNIC(source)
 
-	if udp.DstPort == 1900 {
+	switch udp.DstPort {
+	case 1900:
 		req, err := http.ReadRequest(bufio.NewReader(bytes.NewReader(udp.Payload)))
 		if err != nil {
 			return
@@ -113,8 +115,12 @@ func (i *intel) ssdp(source net.HardwareAddr, layer gopacket.Layer) {
 
 		ua := req.Header.Get("user-agent")
 		if ua != "" {
-			nic := i.getNIC(source)
 			nic.userAgents.add(ua)
+		}
+
+	case 57621:
+		if bytes.HasPrefix(udp.Payload, []byte("SpotUdp")) {
+			nic.applications.add("Spotify")
 		}
 	}
 }
