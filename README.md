@@ -17,6 +17,7 @@ Features
 - Detects SSDP user agents
 - Detects clients running Spotify
 - Detects Dropbox client
+- Detects HASP License Manager
 - Displays ethernet OUI vendor
 - no cgo needed.
 

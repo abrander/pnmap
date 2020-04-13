@@ -131,6 +131,12 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 		return true
 
+	// HASP License Manager
+	case 1947:
+		nic.applications.add("HASP-License-Manager")
+
+		return true
+
 	// Dropbox
 	case 17500:
 		dummy := make(map[string]interface{})
