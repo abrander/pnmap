@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	pcapreader "github.com/evnix/pcap-reader"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcapgo"
@@ -163,12 +162,16 @@ func monitor(_ *cobra.Command, _ []string) {
 func simulate(_ *cobra.Command, args []string) {
 	packets := make(chan gopacket.Packet, 10)
 
-	reader := pcapreader.PCapReader{}
-	err := reader.Open(args[0])
+	f, err := os.Open(args[0])
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-	defer reader.Close()
+	defer f.Close()
+
+	reader, err := pcapgo.NewReader(f)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
 	i := newIntel()
 	g := newGUI()
@@ -177,13 +180,15 @@ func simulate(_ *cobra.Command, args []string) {
 
 	go func() {
 		for {
-			header, data, err := reader.ReadNextPacket()
+			data, ci, err := reader.ReadPacketData()
 			if err == io.EOF {
 				break
 			}
 
 			packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.Default)
-			packet.Metadata().Timestamp = time.Unix(int64(header.TsSec), int64(header.TsUsec)*1000)
+			packet.Metadata().Timestamp = ci.Timestamp
+			packet.Metadata().CaptureInfo = ci
+
 			packets <- packet
 		}
 	}()
