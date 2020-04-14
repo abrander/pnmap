@@ -189,13 +189,15 @@ func simulate(_ *cobra.Command, args []string) {
 	}()
 
 	go func() {
-		for {
-			select {
-			case packet := <-packets:
-				go i.NewPacket(packet)
-			case nic := <-i.hostChan:
-				g.updateNIC(nic)
-			}
+		for packet := range packets {
+			fmt.Fprintf(os.Stderr, "%s\n", packet.String())
+			i.NewPacket(packet)
+		}
+	}()
+
+	go func() {
+		for nic := range i.hostChan {
+			g.updateNIC(nic)
 		}
 	}()
 
