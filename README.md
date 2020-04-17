@@ -15,9 +15,13 @@ Features
 - Detects DHCP hostnames
 - Detects DHCP vendors
 - Detects SSDP user agents
-- Detects clients running Spotify
+- Detects clients running Spotify and Spotify Connect speakers
 - Detects Dropbox client
 - Detects HASP License Manager
+- Detects MDNS services
+- Detects iOS and macOS hardware model
+- Detects Chromecast and AirPlay clients and servers
+- Detects various file sharing services
 - Displays ethernet OUI vendor
 - no cgo needed.
 

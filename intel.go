@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"github.com/miekg/dns"
 )
 
 type intel struct {
@@ -136,6 +139,119 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 		nic.applications.add("HASP-License-Manager")
 
 		return true
+
+	// Multicast-DNS
+	case 5353:
+		msg := new(dns.Msg)
+
+		dnsParts := func(in string) []string {
+			in = strings.TrimSuffix(in, ".local.")
+			parts := []string{""}
+			part := 0
+
+			var r rune
+			for i, w := 0, 0; i < len(in); i += w {
+				r, w = utf8.DecodeRuneInString(in[i:])
+				if r == '\\' {
+					var w2 int
+					r, w2 = utf8.DecodeRuneInString(in[i+w:])
+					w += w2
+					parts[part] += string(r)
+				} else if r == '.' {
+					parts = append(parts, "")
+					part++
+				} else {
+					parts[part] += string(r)
+				}
+			}
+
+			return parts
+		}
+
+		if err := msg.Unpack(udp.Payload); err != nil {
+			return false
+		}
+
+		if !msg.Response {
+			return true
+		}
+
+		m := map[string]string{
+			"_sftp-ssh":        "SSH",
+			"_smb":             "Samba",
+			"_ipp":             "IPP",
+			"_ipps":            "IPPS",
+			"_pdl-datastream":  "PDL-socket",
+			"_afpovertcp":      "AFP",  // Apple Filing Protocol
+			"_raop":            "RAOP", // Remote Audio Output Protocol
+			"_airplay":         "AirPlay-display",
+			"_companion-link":  "AirPlay-client",
+			"_services":        "",
+			"_nvstream_dbd":    "NVidia-Gamestream",
+			"_homekit":         "homekit?",
+			"_ePCL":            "ePCL?",
+			"_universal":       "universal?",
+			"_print":           "print?",
+			"_wfds-print":      "wfds-print?",
+			"_printer":         "LPR-printer",
+			"_http":            "HTTP-server",
+			"_scanner":         "Scanner",
+			"_http-alt":        "HTTP-server-alt",
+			"_uscan":           "uscan?",
+			"_privet":          "Privet",
+			"_uscans":          "uscans?",
+			"_soundtouch":      "SoundTouch", // Bose
+			"_googlecast":      "Chromecast",
+			"_spotify-connect": "Spotify-Connect",
+		}
+
+		for _, answer := range msg.Answer {
+			names := dnsParts(answer.Header().Name)
+			switch rr := answer.(type) {
+			case *dns.A:
+				name := strings.TrimSuffix(rr.Header().Name, ".local.")
+
+				nic.Hostnames.add(name)
+
+			case *dns.PTR:
+				app, found := m[names[0]]
+				if !found {
+					app = names[0]
+				}
+
+				if strings.HasSuffix(rr.Header().Name, ".arpa.") {
+					break
+				}
+
+				if app != "" {
+					nic.applications.add(app)
+				}
+
+			case *dns.SRV:
+				if len(names) < 2 {
+					break
+				}
+
+				app, found := m[names[1]]
+				if !found {
+					app = names[1]
+				}
+
+				if app != "" {
+					nic.applications.add(app)
+				}
+
+				if names[0][0] != '_' {
+					nic.Hostnames.add(names[0])
+				}
+
+			case *dns.TXT:
+				nic.Hostnames.add(names[0])
+				if names[1] == "_device-info" {
+					nic.vendor.add(rr.Txt[0])
+				}
+			}
+		}
 
 	// Dropbox
 	case 17500:
