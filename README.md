@@ -33,7 +33,7 @@ A working Go environment is required for compiling and a Linux host is required 
 Compiling
 ---------
 
-The usual Go `go get -u ./...` and `go buiuld .` should suffice.
+The usual Go `go mod download` and `go build` should suffice.
 
 Running
 -------
