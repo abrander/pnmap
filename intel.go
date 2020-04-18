@@ -253,6 +253,16 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			}
 		}
 
+	// Nobø Hub
+	// https://www.glendimplex.se/media/15650/nobo-hub-api-v-1-1-integration-for-advanced-users.pdf
+	case 10000, 10001:
+		if bytes.Contains(udp.Payload, []byte("__NOBOHUB__")) {
+			nic.vendor.add("Glen-Dimplex")
+			nic.applications.add("nobo")
+
+			return true
+		}
+
 	// Dropbox
 	case 17500:
 		dummy := make(map[string]interface{})

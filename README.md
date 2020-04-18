@@ -25,6 +25,7 @@ Features
 - Detects iOS and macOS hardware models
 - Detects Chromecast and AirPlay clients and servers
 - Detects various file-sharing services
+- Detects Glen Dimplex Nobø Energy Control hubs
 - Displays ethernet OUI vendors
 - no cgo needed.
 
