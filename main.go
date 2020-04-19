@@ -26,6 +26,9 @@ var (
 	hostInterfaces []net.Interface
 
 	unknown string
+
+	unknownFile   *os.File
+	unknownWriter *pcapgo.Writer
 )
 
 func init() {
@@ -39,22 +42,50 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 
 	monitorCmd := &cobra.Command{
-		Use:   "monitor",
-		Short: "Monitor all interfaces for Probe Requests",
-		Run:   monitor,
+		Use:     "monitor",
+		Short:   "Monitor all interfaces for Probe Requests",
+		Run:     monitor,
+		PreRun:  setupWriter,
+		PostRun: tearDownWriter,
 	}
 	monitorCmd.Flags().StringVarP(&unknown, "unknown", "u", "", "Path to write unknown packets to")
 	rootCmd.AddCommand(monitorCmd)
 
 	simulateCmd := &cobra.Command{
-		Use:   "simulate",
-		Short: "",
-		Run:   simulate,
-		Args:  cobra.ExactArgs(1),
+		Use:     "simulate",
+		Short:   "",
+		Run:     simulate,
+		Args:    cobra.ExactArgs(1),
+		PreRun:  setupWriter,
+		PostRun: tearDownWriter,
 	}
+	simulateCmd.Flags().StringVarP(&unknown, "unknown", "u", "", "Path to write unknown packets to")
 	rootCmd.AddCommand(simulateCmd)
 
 	interfaces = monitorCmd.PersistentFlags().StringArrayP("interface", "i", []string{"all"}, "Interface(s) to monitor")
+}
+
+func setupWriter(_ *cobra.Command, _ []string) {
+	var err error
+	if unknown != "" {
+		unknownFile, err = os.OpenFile(unknown, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+
+		unknownWriter = pcapgo.NewWriter(unknownFile)
+
+		pos, _ := unknownFile.Seek(0, 2)
+		if pos == 0 {
+			unknownWriter.WriteFileHeader(65536, layers.LinkTypeEthernet)
+		}
+	}
+}
+
+func tearDownWriter(_ *cobra.Command, _ []string) {
+	if unknownFile != nil {
+		unknownFile.Close()
+	}
 }
 
 func list(_ *cobra.Command, _ []string) {
@@ -121,22 +152,6 @@ func monitor(_ *cobra.Command, _ []string) {
 		go listen(i, packets)
 	}
 
-	var unknownWriter *pcapgo.Writer
-	if unknown != "" {
-		f, err := os.OpenFile(unknown, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Fatalf(err.Error())
-		}
-		defer f.Close()
-
-		unknownWriter = pcapgo.NewWriter(f)
-
-		pos, _ := f.Seek(0, 2)
-		if pos == 0 {
-			unknownWriter.WriteFileHeader(65536, layers.LinkTypeEthernet)
-		}
-	}
-
 	i := newIntel()
 	g := newGUI()
 
@@ -145,7 +160,7 @@ func monitor(_ *cobra.Command, _ []string) {
 	go func() {
 		for packet := range packets {
 			if !i.NewPacket(packet) && unknownWriter != nil {
-				unknownWriter.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+				_ = unknownWriter.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
 			}
 		}
 	}()
@@ -196,7 +211,9 @@ func simulate(_ *cobra.Command, args []string) {
 	go func() {
 		for packet := range packets {
 			fmt.Fprintf(os.Stderr, "%s\n", packet.String())
-			i.NewPacket(packet)
+			if !i.NewPacket(packet) && unknownWriter != nil {
+				_ = unknownWriter.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+			}
 		}
 	}()
 
