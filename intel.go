@@ -33,6 +33,7 @@ func newIntel() *intel {
 	i.mux.add(layers.LayerTypeIPv4, i.ipv4)
 	i.mux.add(layers.LayerTypeIPv6, i.ipv6)
 	i.mux.add(layers.LayerTypeUDP, i.udp)
+	i.mux.add(layers.LayerTypeICMPv6NeighborAdvertisement, i.ipv6NeighborAdvertisement)
 
 	return i
 }
@@ -285,6 +286,15 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 	}
 
 	return false
+}
+
+func (i *intel) ipv6NeighborAdvertisement(source net.HardwareAddr, layer gopacket.Layer) bool {
+	na := layer.(*layers.ICMPv6NeighborAdvertisement)
+	nic := i.getNIC(source)
+
+	nic.IPs.add(na.TargetAddress.String())
+
+	return true
 }
 
 func (i *intel) NewPacket(packet gopacket.Packet) bool {

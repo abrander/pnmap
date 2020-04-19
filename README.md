@@ -14,6 +14,7 @@ Features
 - Supports encrypted WiFi-networks
 - Detects IPv4 addresses of hosts
 - Detects IPv6 addresses of hosts
+- Detects IPv6 neighbor discovery
 - Detects DHCP hostnames
 - Detects DHCP vendors
 - Detects SSDP user agents
