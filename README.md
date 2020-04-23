@@ -27,6 +27,7 @@ Features
 - Detects Chromecast and AirPlay clients and servers
 - Detects various file-sharing services
 - Detects Glen Dimplex Nobø Energy Control hubs
+- Detects WS-Discovery clients
 - Displays ethernet OUI vendors
 - no cgo needed.
 

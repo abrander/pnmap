@@ -141,6 +141,12 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 		return true
 
+	// WS-Discovery
+	case 3702:
+		nic.applications.add("WS-Discovery")
+
+		return true
+
 	// Multicast-DNS
 	case 5353:
 		msg := new(dns.Msg)
