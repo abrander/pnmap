@@ -28,6 +28,7 @@ Features
 - Detects various file-sharing services
 - Detects Glen Dimplex Nobø Energy Control hubs
 - Detects WS-Discovery clients
+- Detects TeamViewer
 - Displays ethernet OUI vendors
 - no cgo needed.
 

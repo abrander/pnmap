@@ -210,6 +210,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			"_soundtouch":      "SoundTouch", // Bose
 			"_googlecast":      "Chromecast",
 			"_spotify-connect": "Spotify-Connect",
+			"_teamviewer":      "TeamViewer",
 		}
 
 		for _, answer := range msg.Answer {
