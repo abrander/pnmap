@@ -289,6 +289,13 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 		return true
 
+	// Steam client
+	case 27036:
+		nic.applications.add("Steam")
+
+		// TODO: extract external IP from client status
+		return true
+
 	// Spotify
 	case 57621:
 		if bytes.HasPrefix(udp.Payload, []byte("SpotUdp")) {

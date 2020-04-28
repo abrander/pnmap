@@ -30,6 +30,7 @@ Features
 - Detects WS-Discovery clients
 - Detects TeamViewer
 - Detects Minecraft clients
+- Detects Steam
 - Displays ethernet OUI vendors
 - no cgo needed.
 
