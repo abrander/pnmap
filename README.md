@@ -29,6 +29,7 @@ Features
 - Detects Glen Dimplex Nobø Energy Control hubs
 - Detects WS-Discovery clients
 - Detects TeamViewer
+- Detects Minecraft clients
 - Displays ethernet OUI vendors
 - no cgo needed.
 

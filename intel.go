@@ -283,6 +283,12 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			return true
 		}
 
+	// Raknet for Minecraft client
+	case 19133:
+		nic.applications.add("Minecraft")
+
+		return true
+
 	// Spotify
 	case 57621:
 		if bytes.HasPrefix(udp.Payload, []byte("SpotUdp")) {
