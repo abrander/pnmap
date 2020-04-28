@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -10,6 +11,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/miekg/dns"
@@ -293,7 +295,64 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 	case 27036:
 		nic.applications.add("Steam")
 
-		// TODO: extract external IP from client status
+		if len(udp.Payload) < 40 {
+			return false
+		}
+
+		hlen, err := binary.ReadUvarint(bytes.NewBuffer(udp.Payload[8:]))
+		if err != nil {
+			return false
+		}
+
+		// 8: skip 8 byts of signature
+		buf := proto.NewBuffer(udp.Payload[8:])
+		if err != nil {
+			return false
+		}
+
+		// signature + header length + header + body length
+		offset := 8 + 4 + hlen + 4
+
+		if offset > uint64(len(udp.Payload)) {
+			return false
+		}
+
+		buf.SetBuf(udp.Payload[offset:])
+
+		for value, err := buf.DecodeVarint(); err == nil; value, err = buf.DecodeVarint() {
+			number := value >> 3
+			typ := value & 0x7
+
+			var str string
+
+			switch typ {
+			case 0:
+				_, err = buf.DecodeVarint()
+			case 1:
+				_, err = buf.DecodeFixed64()
+			case 2:
+				str, err = buf.DecodeStringBytes()
+			case 5:
+				_, err = buf.DecodeFixed32()
+			default:
+				return false
+			}
+
+			if err != nil {
+				break
+			}
+
+			switch number {
+			case 4:
+				nic.Hostnames.add(str)
+
+			case 20, 21:
+				if str != "0.0.0.0" {
+					nic.IPs.add(str)
+				}
+			}
+		}
+
 		return true
 
 	// Spotify
