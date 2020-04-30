@@ -213,6 +213,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			"_googlecast":      "Chromecast",
 			"_spotify-connect": "Spotify-Connect",
 			"_teamviewer":      "TeamViewer",
+			"_rfb":             "VNC",
 		}
 
 		for _, answer := range msg.Answer {

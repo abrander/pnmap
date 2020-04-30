@@ -32,6 +32,7 @@ Features
 - Detects TeamViewer
 - Detects Minecraft clients
 - Detects Steam
+- Detects VNC
 - Displays ethernet OUI vendors
 - no cgo needed.
 
