@@ -12,6 +12,15 @@ type ouiDatabase struct {
 	toVendor map[string]string
 }
 
+var (
+	privates = map[byte]bool{
+		'2': true,
+		'6': true,
+		'a': true,
+		'e': true,
+	}
+)
+
 func newOuiDatabase() (*ouiDatabase, error) {
 	o := &ouiDatabase{
 		toVendor: make(map[string]string),
@@ -52,5 +61,11 @@ func newOuiDatabase() (*ouiDatabase, error) {
 }
 
 func (o *ouiDatabase) Vendor(mac string) string {
-	return o.toVendor[mac[0:8]]
+	vendor := o.toVendor[mac[0:8]]
+
+	if vendor == "" && len(mac) > 1 && privates[mac[1]] {
+		return "LAA (LOCALLY ADMINISTERED)"
+	}
+
+	return vendor
 }
