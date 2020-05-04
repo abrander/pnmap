@@ -57,6 +57,8 @@ func newOuiDatabase() (*ouiDatabase, error) {
 		o.toVendor[mac] = vendor
 	}
 
+	o.toVendor["52:54:00"] = "QEMU"
+
 	return o, nil
 }
 
