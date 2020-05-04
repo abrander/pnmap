@@ -77,7 +77,10 @@ func setupWriter(_ *cobra.Command, _ []string) {
 
 		pos, _ := unknownFile.Seek(0, 2)
 		if pos == 0 {
-			unknownWriter.WriteFileHeader(65536, layers.LinkTypeEthernet)
+			err = unknownWriter.WriteFileHeader(65536, layers.LinkTypeEthernet)
+			if err != nil {
+				log.Fatalf(err.Error())
+			}
 		}
 	}
 }
