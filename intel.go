@@ -191,8 +191,8 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			"_ipp":             "IPP",
 			"_ipps":            "IPPS",
 			"_pdl-datastream":  "PDL-socket",
-			"_afpovertcp":      "AFP",  // Apple Filing Protocol
-			"_raop":            "RAOP", // Remote Audio Output Protocol
+			"_afpovertcp":      "AFP",          // Apple Filing Protocol
+			"_raop":            "AirPlay-RAOP", // Remote Audio Output Protocol
 			"_airplay":         "AirPlay-display",
 			"_companion-link":  "AirPlay-client",
 			"_services":        "",
@@ -214,6 +214,8 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			"_spotify-connect": "Spotify-Connect",
 			"_teamviewer":      "TeamViewer",
 			"_rfb":             "VNC",
+			"_adisk":           "TimeCapsule",
+			"_telnet":          "Telnet",
 		}
 
 		for _, answer := range msg.Answer {
