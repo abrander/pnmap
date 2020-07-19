@@ -226,6 +226,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			"_rfb":             "VNC",
 			"_adisk":           "TimeCapsule",
 			"_telnet":          "Telnet",
+			"_sonos":           "Sonos",
 		}
 
 		for _, answer := range msg.Answer {
