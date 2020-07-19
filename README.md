@@ -39,7 +39,8 @@ Features
 Requirements
 ------------
 
-A working Go environment is required for compiling, and a Linux host is required for running.
+A working Go environment is required for compiling, and a Linux, BSD or
+macOS host is required for running.
 
 Compiling
 ---------
