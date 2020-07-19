@@ -32,6 +32,7 @@ func newIntel() *intel {
 
 	i.mux.add(layers.LayerTypeARP, i.arp)
 	i.mux.add(layers.LayerTypeDHCPv4, i.dhcpv4)
+	i.mux.add(layers.LayerTypeDHCPv6, i.dhcpv6)
 	i.mux.add(layers.LayerTypeIPv4, i.ipv4)
 	i.mux.add(layers.LayerTypeIPv6, i.ipv6)
 	i.mux.add(layers.LayerTypeUDP, i.udp)
@@ -56,13 +57,15 @@ func (i *intel) getNIC(addr []byte) *NIC {
 }
 
 func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
+	nic := i.getNIC(source)
+	nic.applications.add("dhcpv4")
+
 	dhcpv4 := layer.(*layers.DHCPv4)
 	if dhcpv4.Operation != layers.DHCPOpRequest {
 		return false
 	}
 
 	for _, o := range dhcpv4.Options {
-		nic := i.getNIC(source)
 
 		switch o.Type {
 		case layers.DHCPOptClassID:
@@ -71,6 +74,13 @@ func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 			nic.Hostnames.add(string(o.Data))
 		}
 	}
+
+	return true
+}
+
+func (i *intel) dhcpv6(source net.HardwareAddr, layer gopacket.Layer) bool {
+	nic := i.getNIC(source)
+	nic.applications.add("dhcpv6")
 
 	return true
 }
