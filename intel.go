@@ -266,14 +266,24 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			}
 		}
 
-	// Nobø Hub
-	// https://www.glendimplex.se/media/15650/nobo-hub-api-v-1-1-integration-for-advanced-users.pdf
 	case 10000, 10001:
+		// Nobø Hub
+		// https://www.glendimplex.se/media/15650/nobo-hub-api-v-1-1-integration-for-advanced-users.pdf
 		if bytes.Contains(udp.Payload, []byte("__NOBOHUB__")) {
 			nic.vendor.add("Glen-Dimplex")
 			nic.applications.add("nobo")
 
 			return true
+		}
+
+		// Ubiquiti discover clients
+		l := len(udp.Payload)
+		if udp.DstPort == 10001 && l > 3 {
+			if plen := udp.Payload[3]; int(plen)+4 == l {
+				nic.applications.add("ubnt-discover")
+
+				return true
+			}
 		}
 
 	// Dropbox

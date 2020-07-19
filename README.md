@@ -29,6 +29,7 @@ Features
 - Detects various file-sharing services
 - Detects Glen Dimplex Nobø Energy Control hubs
 - Detects WS-Discovery clients
+- Detects Ubiquiti Discover clients
 - Detects TeamViewer
 - Detects Minecraft clients
 - Detects Steam
