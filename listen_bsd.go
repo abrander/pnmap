@@ -44,6 +44,12 @@ func listen(deviceName string, out chan gopacket.Packet) {
 		packet.Metadata().CaptureInfo = ci
 		packet.Metadata().Timestamp = time.Now()
 
+		// If we're unable to decode the packet, continue in silence.
+		_, failure := packet.Layer(gopacket.LayerTypeDecodeFailure).(*gopacket.DecodeFailure)
+		if failure {
+			continue
+		}
+
 		if ethernetLayer := packet.Layer(layers.LayerTypeEthernet); ethernetLayer != nil {
 			eth := ethernetLayer.(*layers.Ethernet)
 
