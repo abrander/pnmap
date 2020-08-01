@@ -50,18 +50,6 @@ func listen(deviceName string, out chan gopacket.Packet) {
 			continue
 		}
 
-		if ethernetLayer := packet.Layer(layers.LayerTypeEthernet); ethernetLayer != nil {
-			eth := ethernetLayer.(*layers.Ethernet)
-
-			// Throw away packets with no source.
-			if eth.SrcMAC.String() == "00:00:00:00:00:00" {
-				continue
-			}
-
-			// We're only interested in group traffic.
-			if eth.DstMAC[0]&0x01 > 0 {
-				out <- packet
-			}
-		}
+		filter(packet, out)
 	}
 }

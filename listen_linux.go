@@ -31,23 +31,10 @@ func listen(deviceName string, out chan gopacket.Packet) {
 			break
 		}
 
-		// Throw away packets with no source.
-		if addr.String() == "00:00:00:00:00:00" {
-			continue
-		}
-
 		packet := gopacket.NewPacket(buffer[0:l], layers.LayerTypeEthernet, gopacket.Default)
 		packet.Metadata().Timestamp = time.Now()
 		packet.Metadata().CaptureInfo.CaptureLength = l
 		packet.Metadata().CaptureInfo.Length = l
 
-		if ethernetLayer := packet.Layer(layers.LayerTypeEthernet); ethernetLayer != nil {
-			eth := ethernetLayer.(*layers.Ethernet)
-
-			// We're only interested in group traffic.
-			if eth.DstMAC[0]&0x01 > 0 {
-				out <- packet
-			}
-		}
-	}
+		filter(packet, out)
 }

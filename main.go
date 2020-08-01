@@ -163,7 +163,7 @@ func simulate(_ *cobra.Command, args []string) {
 			packet.Metadata().Timestamp = ci.Timestamp
 			packet.Metadata().CaptureInfo = ci
 
-			packets <- packet
+			filter(packet, packets)
 		}
 	}()
 
@@ -192,5 +192,20 @@ func main() {
 	err := rootCmd.Execute()
 	if err != nil {
 		log.Fatal(err.Error())
+	}
+}
+
+func filter(packet gopacket.Packet, out chan gopacket.Packet) {
+	if ethernetLayer := packet.Layer(layers.LayerTypeEthernet); ethernetLayer != nil {
+		eth := ethernetLayer.(*layers.Ethernet)
+
+		switch {
+		// Throw away packets with no source.
+		case eth.SrcMAC.String() == "00:00:00:00:00:00":
+
+		// We're only interested in group traffic.
+		case eth.DstMAC[0]&0x01 > 0:
+			out <- packet
+		}
 	}
 }
