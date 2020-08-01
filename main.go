@@ -198,6 +198,7 @@ func main() {
 func filter(packet gopacket.Packet, out chan gopacket.Packet) {
 	if ethernetLayer := packet.Layer(layers.LayerTypeEthernet); ethernetLayer != nil {
 		eth := ethernetLayer.(*layers.Ethernet)
+		ipv4 := packet.Layer(layers.LayerTypeIPv4)
 
 		switch {
 		// Throw away packets with no source.
@@ -205,6 +206,10 @@ func filter(packet gopacket.Packet, out chan gopacket.Packet) {
 
 		// We're only interested in group traffic.
 		case eth.DstMAC[0]&0x01 > 0:
+			out <- packet
+
+		// ... or IP broadcast traffic.
+		case ipv4 != nil && ipv4.(*layers.IPv4).DstIP.Equal(net.IPv4bcast):
 			out <- packet
 		}
 	}
