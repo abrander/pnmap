@@ -25,7 +25,7 @@ func listen(deviceName string, out chan gopacket.Packet) {
 	buffer := make([]byte, 65536)
 
 	for {
-		l, addr, err := conn.ReadFrom(buffer)
+		l, _, err := conn.ReadFrom(buffer)
 		if err != nil {
 			log.Fatalf("error: %s", err.Error())
 			break
@@ -37,4 +37,5 @@ func listen(deviceName string, out chan gopacket.Packet) {
 		packet.Metadata().CaptureInfo.Length = l
 
 		filter(packet, out)
+	}
 }
