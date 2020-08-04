@@ -13,23 +13,15 @@ type gui struct {
 	hostList *tview.List
 	details  *tview.TextView
 
-	ouiDatabase *ouiDatabase
-	nics        map[string]*NIC
+	nics map[string]*NIC
 }
 
 func newGUI() *gui {
-	var err error
-
 	g := &gui{
 		app:      tview.NewApplication(),
 		hostList: tview.NewList(),
 		details:  tview.NewTextView(),
 		nics:     make(map[string]*NIC),
-	}
-
-	g.ouiDatabase, err = newOuiDatabase()
-	if err != nil {
-		panic(err.Error())
 	}
 
 	flex := tview.NewFlex()
@@ -98,5 +90,5 @@ func (g *gui) updateNIC(nic *NIC) {
 		}
 	}
 
-	g.hostList.AddItem(nic.MAC+" "+g.ouiDatabase.Vendor(nic.MAC), sec, 0, g.selectHost)
+	g.hostList.AddItem(nic.MAC+" "+OUIVendor(nic.MAC), sec, 0, g.selectHost)
 }
