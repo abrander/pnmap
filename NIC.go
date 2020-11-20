@@ -37,7 +37,8 @@ func newNIC(addr []byte) *NIC {
 func (n *NIC) String() string {
 	output := n.MAC + "\n\n"
 
-	output += fmt.Sprintf("Last seen: %s (%s ago)\n\n", n.lastSeen.String(), time.Since(n.lastSeen).String())
+	output += fmt.Sprintf("Last seen: %s (%s ago)\n", n.lastSeen.String(), time.Since(n.lastSeen).String())
+	output += fmt.Sprintf("Packets: %d\n\n", n.seen)
 
 	output += fmt.Sprintf("IPS: %v\n", n.IPs)
 	output += fmt.Sprintf("Hostnames: %v\n", n.Hostnames)
