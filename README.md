@@ -48,7 +48,7 @@ macOS host is required for running.
 Compiling
 ---------
 
-The usual `go mod download` and `go build` should suffice.
+The usual `go mod download`, `go generate` and `go build` should suffice.
 
 Running
 -------
