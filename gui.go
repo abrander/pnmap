@@ -8,6 +8,14 @@ import (
 	"github.com/rivo/tview"
 )
 
+const ips = "ips"
+const hostnames = "hostnames"
+const useragents = "useragents"
+const vendor = "vendor"
+const applications = "applications"
+const seen = "seen"
+const lastseen = "lastseen"
+
 type gui struct {
 	app       *tview.Application
 	hostList  *tview.List
@@ -48,19 +56,19 @@ func newGUI() *gui {
 		case tcell.KeyRune:
 			switch event.Rune() {
 			case '1':
-				g.secondary = "ips"
+				g.secondary = ips
 			case '2':
-				g.secondary = "hostnames"
+				g.secondary = hostnames
 			case '3':
-				g.secondary = "useragents"
+				g.secondary = useragents
 			case '4':
-				g.secondary = "vendor"
+				g.secondary = vendor
 			case '5':
-				g.secondary = "applications"
+				g.secondary = applications
 			case '6':
-				g.secondary = "seen"
+				g.secondary = seen
 			case '7':
-				g.secondary = "lastseen"
+				g.secondary = lastseen
 			}
 			go func() {
 				for _, nic := range g.nics {
@@ -104,19 +112,19 @@ func (g *gui) updateNIC(nic *NIC) {
 	switch g.secondary {
 	default:
 		sec = fmt.Sprintf("  %v", nic.IPs)
-	case "ips":
+	case ips:
 		sec = fmt.Sprintf("  %v", nic.IPs)
-	case "hostnames":
+	case hostnames:
 		sec = fmt.Sprintf("  %v", nic.Hostnames)
-	case "useragents":
+	case useragents:
 		sec = fmt.Sprintf("  %v", nic.UserAgents)
-	case "vendor":
+	case vendor:
 		sec = fmt.Sprintf("  %v", nic.Vendor)
-	case "applications":
+	case applications:
 		sec = fmt.Sprintf("  %v", nic.Applications)
-	case "seen":
+	case seen:
 		sec = fmt.Sprintf("  %v", nic.Seen)
-	case "lastseen":
+	case lastseen:
 		sec = fmt.Sprintf("  %v", nic.LastSeen)
 	}
 
