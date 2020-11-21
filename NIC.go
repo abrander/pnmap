@@ -7,14 +7,14 @@ import (
 
 // NIC contains information about an ethernet station.
 type NIC struct {
-	MAC          string
-	IPs          stringSlice
-	Hostnames    stringSlice
-	userAgents   stringSlice
-	vendor       stringSlice
-	applications stringSlice
-	seen         int
-	lastSeen     time.Time
+	MAC          string      `json:"MAC"`
+	IPs          stringSlice `json:"IPs"`
+	Hostnames    stringSlice `json:"Hostnames"`
+	UserAgents   stringSlice `json:"UserAgents`
+	Vendor       stringSlice `json:"Vendor"`
+	Applications stringSlice `json:"Applications"`
+	Seen         int         `json:"Seen"`
+	LastSeen     time.Time   `json:"LastSeen"`
 }
 
 func mac(addr []byte) string {
@@ -37,13 +37,14 @@ func newNIC(addr []byte) *NIC {
 func (n *NIC) String() string {
 	output := n.MAC + "\n\n"
 
-	output += fmt.Sprintf("Last seen: %s (%s ago)\n\n", n.lastSeen.String(), time.Since(n.lastSeen).String())
+	output += fmt.Sprintf("Last seen: %s (%s ago)\n", n.LastSeen.String(), time.Since(n.LastSeen).String())
+	output += fmt.Sprintf("Packets: %d\n\n", n.Seen)
 
 	output += fmt.Sprintf("IPS: %v\n", n.IPs)
 	output += fmt.Sprintf("Hostnames: %v\n", n.Hostnames)
-	output += fmt.Sprintf("User agents: %v\n", n.userAgents)
-	output += fmt.Sprintf("Vendor: %v\n", n.vendor)
-	output += fmt.Sprintf("Applications: %v", n.applications)
+	output += fmt.Sprintf("User agents: %v\n", n.UserAgents)
+	output += fmt.Sprintf("Vendor: %v\n", n.Vendor)
+	output += fmt.Sprintf("Applications: %v", n.Applications)
 
 	return output
 }

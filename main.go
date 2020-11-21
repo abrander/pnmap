@@ -1,11 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -26,6 +30,9 @@ var (
 
 	unknownFile   *os.File
 	unknownWriter *pcapgo.Writer
+
+	homedir, _ = os.UserHomeDir()
+	statefile  = homedir + "/.pnmap/state.json"
 )
 
 func init() {
@@ -114,12 +121,26 @@ func monitor(_ *cobra.Command, _ []string) {
 	i := newIntel()
 	g := newGUI()
 
+	state, _ := ioutil.ReadFile(statefile)
+	json.Unmarshal(state, &i.NICCollection)
+
 	i.hostChan = make(chan *NIC, 10)
 
 	go func() {
+		last := time.Now()
+
 		for packet := range packets {
 			if !i.NewPacket(packet) && unknownWriter != nil {
 				_ = unknownWriter.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+			}
+			now := time.Now()
+			if now.Sub(last).Seconds() > 10 {
+				os.Mkdir(filepath.Dir(statefile), 700)
+				f, _ := os.Create(statefile)
+				j, _ := json.Marshal(i.NICCollection)
+				_, _ = fmt.Fprintf(f, "%s", j)
+				f.Close()
+				last = time.Now()
 			}
 		}
 	}()
