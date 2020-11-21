@@ -49,7 +49,7 @@ func newGUI() *gui {
 	g.details.SetBorderColor(tcell.ColorGray)
 	g.details.SetTitleColor(tcell.ColorGreenYellow)
 
-	g.app.SetRoot(flex, true).EnableMouse(true)
+	g.app.SetRoot(flex, true)
 
 	g.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
