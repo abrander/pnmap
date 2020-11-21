@@ -31,8 +31,7 @@ var (
 	unknownFile   *os.File
 	unknownWriter *pcapgo.Writer
 
-	homedir, _ = os.UserHomeDir()
-	statefile  = homedir + "/.pnmap/state.json"
+	statefile = getStateFile()
 )
 
 func init() {
