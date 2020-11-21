@@ -44,6 +44,10 @@ func newGUI() *gui {
 	g.hostList.SetBorderColor(tcell.ColorGray)
 	g.hostList.SetTitle(" Stations ")
 	g.hostList.SetTitleColor(tcell.ColorGreenYellow)
+	g.hostList.SetMainTextColor(tcell.ColorGreen)
+	g.hostList.SetSecondaryTextColor(tcell.ColorWhite)
+	g.hostList.SetSelectedTextColor(tcell.ColorBlack)
+	g.hostList.SetSelectedBackgroundColor(tcell.ColorGreen)
 
 	g.details.SetBorder(true)
 	g.details.SetBorderColor(tcell.ColorGray)
