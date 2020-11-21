@@ -41,7 +41,7 @@ func findGateways() []string {
 	scanner.Scan() // skip first line as it's a header
 	for scanner.Scan() {
 		s := strings.Fields(scanner.Text())
-		if s[2] != "00000000" {
+		if s[1] == "00000000" && s[7] == "00000000" {
 			octet0, _ := strconv.ParseInt(s[2][6:8], 16, 64)
 			octet1, _ := strconv.ParseInt(s[2][4:6], 16, 64)
 			octet2, _ := strconv.ParseInt(s[2][2:4], 16, 64)
