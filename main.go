@@ -151,9 +151,13 @@ func monitor(_ *cobra.Command, _ []string) {
 		}
 	}()
 
-	for _, nic := range i.NICCollection {
-		i.hostChan <- nic
-	}
+	// Needs to be run in a Goroutine because of limited number of channels
+	go func() {
+		for _, nic := range i.NICCollection {
+			i.hostChan <- nic
+		}
+		return
+	}()
 
 	_ = g.Run()
 }
