@@ -142,7 +142,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 		ua := req.Header.Get("user-agent")
 		if ua != "" {
-			nic.UserAgents.add(ua)
+			nic.Useragents.add(ua)
 		}
 
 		return true

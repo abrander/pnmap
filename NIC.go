@@ -10,7 +10,7 @@ type NIC struct {
 	MAC          string      `json:"MAC"`
 	IPs          stringSlice `json:"IPs"`
 	Hostnames    stringSlice `json:"Hostnames"`
-	UserAgents   stringSlice `json:"UserAgents`
+	Useragents   stringSlice `json:"UserAgents`
 	Vendor       stringSlice `json:"Vendor"`
 	Applications stringSlice `json:"Applications"`
 	Seen         int         `json:"Seen"`
@@ -42,7 +42,7 @@ func (n *NIC) String() string {
 
 	output += fmt.Sprintf("IPS: %v\n", n.IPs)
 	output += fmt.Sprintf("Hostnames: %v\n", n.Hostnames)
-	output += fmt.Sprintf("User agents: %v\n", n.UserAgents)
+	output += fmt.Sprintf("User agents: %v\n", n.Useragents)
 	output += fmt.Sprintf("Vendor: %v\n", n.Vendor)
 	output += fmt.Sprintf("Applications: %v", n.Applications)
 
