@@ -30,7 +30,7 @@ func newGUI() *gui {
 		app:       tview.NewApplication(),
 		hostList:  tview.NewList(),
 		details:   tview.NewTextView(),
-		secondary: "ips",
+		secondary: ips,
 		nics:      make(map[string]*NIC),
 	}
 
