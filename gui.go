@@ -9,19 +9,21 @@ import (
 )
 
 type gui struct {
-	app      *tview.Application
-	hostList *tview.List
-	details  *tview.TextView
+	app       *tview.Application
+	hostList  *tview.List
+	details   *tview.TextView
+	secondary string
 
 	nics map[string]*NIC
 }
 
 func newGUI() *gui {
 	g := &gui{
-		app:      tview.NewApplication(),
-		hostList: tview.NewList(),
-		details:  tview.NewTextView(),
-		nics:     make(map[string]*NIC),
+		app:       tview.NewApplication(),
+		hostList:  tview.NewList(),
+		details:   tview.NewTextView(),
+		secondary: "ips",
+		nics:      make(map[string]*NIC),
 	}
 
 	flex := tview.NewFlex()
@@ -39,7 +41,37 @@ func newGUI() *gui {
 	g.details.SetBorderColor(tcell.ColorGray)
 	g.details.SetTitleColor(tcell.ColorGreenYellow)
 
-	g.app.SetRoot(flex, true)
+	g.app.SetRoot(flex, true).EnableMouse(true)
+
+	g.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case '1':
+				g.secondary = "ips"
+			case '2':
+				g.secondary = "hostnames"
+			case '3':
+				g.secondary = "useragents"
+			case '4':
+				g.secondary = "vendor"
+			case '5':
+				g.secondary = "applications"
+			case '6':
+				g.secondary = "seen"
+			case '7':
+				g.secondary = "lastseen"
+			}
+			go func() {
+				for _, nic := range g.nics {
+					g.updateNIC(nic)
+				}
+				return
+			}()
+
+		}
+		return event
+	})
 
 	return g
 }
@@ -67,7 +99,26 @@ func (g *gui) selectHost() {
 func (g *gui) updateNIC(nic *NIC) {
 	defer g.app.Draw()
 
-	sec := fmt.Sprintf("%v", nic.IPs)
+	var sec string
+
+	switch g.secondary {
+	default:
+		sec = fmt.Sprintf("  %v", nic.IPs)
+	case "ips":
+		sec = fmt.Sprintf("  %v", nic.IPs)
+	case "hostnames":
+		sec = fmt.Sprintf("  %v", nic.Hostnames)
+	case "useragents":
+		sec = fmt.Sprintf("  %v", nic.UserAgents)
+	case "vendor":
+		sec = fmt.Sprintf("  %v", nic.Vendor)
+	case "applications":
+		sec = fmt.Sprintf("  %v", nic.Applications)
+	case "seen":
+		sec = fmt.Sprintf("  %v", nic.Seen)
+	case "lastseen":
+		sec = fmt.Sprintf("  %v", nic.LastSeen)
+	}
 
 	g.nics[nic.MAC] = nic
 
