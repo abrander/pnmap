@@ -151,6 +151,10 @@ func monitor(_ *cobra.Command, _ []string) {
 		}
 	}()
 
+	for _, nic := range i.NICCollection {
+		i.hostChan <- nic
+	}
+
 	_ = g.Run()
 }
 
