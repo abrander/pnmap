@@ -58,7 +58,7 @@ func (i *intel) getNIC(addr []byte) *NIC {
 
 func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 	nic := i.getNIC(source)
-	nic.applications.add("dhcpv4")
+	nic.Applications.add("dhcpv4")
 
 	dhcpv4 := layer.(*layers.DHCPv4)
 	if dhcpv4.Operation != layers.DHCPOpRequest {
@@ -69,7 +69,7 @@ func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 		switch o.Type {
 		case layers.DHCPOptClassID:
-			nic.vendor.add(string(o.Data))
+			nic.Vendor.add(string(o.Data))
 		case layers.DHCPOptHostname:
 			nic.Hostnames.add(string(o.Data))
 		}
@@ -80,7 +80,7 @@ func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 func (i *intel) dhcpv6(source net.HardwareAddr, layer gopacket.Layer) bool {
 	nic := i.getNIC(source)
-	nic.applications.add("dhcpv6")
+	nic.Applications.add("dhcpv6")
 
 	return true
 }
@@ -142,20 +142,20 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 		ua := req.Header.Get("user-agent")
 		if ua != "" {
-			nic.userAgents.add(ua)
+			nic.UserAgents.add(ua)
 		}
 
 		return true
 
 	// HASP License Manager
 	case 1947:
-		nic.applications.add("HASP-License-Manager")
+		nic.Applications.add("HASP-License-Manager")
 
 		return true
 
 	// WS-Discovery
 	case 3702:
-		nic.applications.add("WS-Discovery")
+		nic.Applications.add("WS-Discovery")
 
 		return true
 
@@ -248,7 +248,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 				}
 
 				if app != "" {
-					nic.applications.add(app)
+					nic.Applications.add(app)
 				}
 
 			case *dns.SRV:
@@ -262,7 +262,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 				}
 
 				if app != "" {
-					nic.applications.add(app)
+					nic.Applications.add(app)
 				}
 
 				if names[0][0] != '_' {
@@ -272,7 +272,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			case *dns.TXT:
 				nic.Hostnames.add(names[0])
 				if names[1] == "_device-info" {
-					nic.vendor.add(rr.Txt[0])
+					nic.Vendor.add(rr.Txt[0])
 				}
 			}
 		}
@@ -281,8 +281,8 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 		// Nobø Hub
 		// https://www.glendimplex.se/media/15650/nobo-hub-api-v-1-1-integration-for-advanced-users.pdf
 		if bytes.Contains(udp.Payload, []byte("__NOBOHUB__")) {
-			nic.vendor.add("Glen-Dimplex")
-			nic.applications.add("nobo")
+			nic.Vendor.add("Glen-Dimplex")
+			nic.Applications.add("nobo")
 
 			return true
 		}
@@ -291,7 +291,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 		l := len(udp.Payload)
 		if udp.DstPort == 10001 && l > 3 {
 			if plen := udp.Payload[3]; int(plen)+4 == l {
-				nic.applications.add("ubnt-discover")
+				nic.Applications.add("ubnt-discover")
 
 				return true
 			}
@@ -304,20 +304,20 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 		if err == nil {
 			// If we can decode a JSON payload, we assume it's
 			// from Dropbox.
-			nic.applications.add("Dropbox")
+			nic.Applications.add("Dropbox")
 
 			return true
 		}
 
 	// Raknet for Minecraft client
 	case 19133:
-		nic.applications.add("Minecraft")
+		nic.Applications.add("Minecraft")
 
 		return true
 
 	// Steam client
 	case 27036:
-		nic.applications.add("Steam")
+		nic.Applications.add("Steam")
 
 		if len(udp.Payload) < 40 {
 			return false
@@ -382,7 +382,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 	// Spotify
 	case 57621:
 		if bytes.HasPrefix(udp.Payload, []byte("SpotUdp")) {
-			nic.applications.add("Spotify")
+			nic.Applications.add("Spotify")
 
 			return true
 		}
@@ -406,8 +406,8 @@ func (i *intel) NewPacket(packet gopacket.Packet) bool {
 
 		nic := i.getNIC(ethernet.SrcMAC)
 
-		nic.lastSeen = packet.Metadata().Timestamp
-		nic.seen++
+		nic.LastSeen = packet.Metadata().Timestamp
+		nic.Seen++
 
 		return i.mux.process(packet)
 	}
