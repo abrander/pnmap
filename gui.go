@@ -15,11 +15,13 @@ const vendor = "vendor"
 const applications = "applications"
 const seen = "seen"
 const lastseen = "lastseen"
+const firstseen = "firstseen"
 
 type gui struct {
 	app       *tview.Application
 	hostList  *tview.List
 	details   *tview.TextView
+	help      *tview.TextView
 	secondary string
 
 	nics map[string]*NIC
@@ -73,6 +75,8 @@ func newGUI() *gui {
 				g.secondary = seen
 			case '7':
 				g.secondary = lastseen
+			case '8':
+				g.secondary = firstseen
 			}
 			go func() {
 				for _, nic := range g.nics {
@@ -130,6 +134,8 @@ func (g *gui) updateNIC(nic *NIC) {
 		sec = fmt.Sprintf("  %v", nic.Seen)
 	case lastseen:
 		sec = fmt.Sprintf("  %v", nic.LastSeen)
+	case firstseen:
+		sec = fmt.Sprintf("  %v", nic.FirstSeen)
 	}
 
 	g.nics[nic.MAC] = nic
