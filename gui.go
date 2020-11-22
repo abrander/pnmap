@@ -20,6 +20,7 @@ type gui struct {
 	app       *tview.Application
 	hostList  *tview.List
 	details   *tview.TextView
+	help      *tview.TextView
 	secondary string
 
 	nics map[string]*NIC
@@ -30,6 +31,7 @@ func newGUI() *gui {
 		app:       tview.NewApplication(),
 		hostList:  tview.NewList(),
 		details:   tview.NewTextView(),
+		help:      tview.NewTextView(),
 		secondary: ips,
 		nics:      make(map[string]*NIC),
 	}
@@ -53,6 +55,10 @@ func newGUI() *gui {
 	g.details.SetBorderColor(tcell.ColorGray)
 	g.details.SetTitleColor(tcell.ColorGreenYellow)
 
+	g.help.SetBorder(true)
+	g.help.SetTitle(" HELP ")
+	g.help.SetText("\n\n          Keyboard shortcuts:\n          1) IPs\n          2) Hostnames\n          h) This help\n")
+
 	g.app.SetRoot(flex, true)
 
 	g.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -73,6 +79,8 @@ func newGUI() *gui {
 				g.secondary = seen
 			case '7':
 				g.secondary = lastseen
+			case 'h':
+				g.app.SetRoot(g.help, true)
 			}
 			go func() {
 				for _, nic := range g.nics {
@@ -80,6 +88,8 @@ func newGUI() *gui {
 				}
 				return
 			}()
+		case 27: // esc
+			g.app.SetRoot(flex, true)
 
 		}
 		return event
