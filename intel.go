@@ -407,6 +407,9 @@ func (i *intel) NewPacket(packet gopacket.Packet) bool {
 		nic := i.getNIC(ethernet.SrcMAC)
 
 		nic.LastSeen = packet.Metadata().Timestamp
+		if nic.FirstSeen.IsZero() {
+			nic.FirstSeen = packet.Metadata().Timestamp
+		}
 		nic.Seen++
 
 		return i.mux.process(packet)

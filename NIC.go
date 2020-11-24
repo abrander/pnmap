@@ -15,6 +15,7 @@ type NIC struct {
 	Applications stringSlice `json:"Applications"`
 	Seen         int         `json:"Seen"`
 	LastSeen     time.Time   `json:"LastSeen"`
+	FirstSeen    time.Time   `json:"FirstSeen"`
 }
 
 func mac(addr []byte) string {
@@ -37,6 +38,7 @@ func newNIC(addr []byte) *NIC {
 func (n *NIC) String() string {
 	output := n.MAC + "\n\n"
 
+	output += fmt.Sprintf("First seen: %s (%s ago)\n", n.FirstSeen.String(), time.Since(n.FirstSeen).String())
 	output += fmt.Sprintf("Last seen: %s (%s ago)\n", n.LastSeen.String(), time.Since(n.LastSeen).String())
 	output += fmt.Sprintf("Packets: %d\n\n", n.Seen)
 
