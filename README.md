@@ -36,6 +36,7 @@ Features
 - Detects Minecraft clients
 - Detects Steam
 - Detects VNC
+- Detects NetBIOS (basic)
 - Displays ethernet OUI vendors
 - no cgo needed.
 
