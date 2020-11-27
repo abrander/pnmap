@@ -133,6 +133,16 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 	switch udp.DstPort {
 
+	// NBNS
+	case 137:
+		nic.Applications.add("NetBIOS-Name-Service")
+		return true
+
+	// NBDS - SMB
+	case 138:
+		nic.Applications.add("NetBIOS-Datagram-Service")
+		return true
+
 	// SSDP
 	case 1900:
 		req, err := http.ReadRequest(bufio.NewReader(bytes.NewReader(udp.Payload)))
