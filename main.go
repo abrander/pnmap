@@ -227,6 +227,7 @@ func filter(packet gopacket.Packet, out chan gopacket.Packet) {
 	if ethernetLayer := packet.Layer(layers.LayerTypeEthernet); ethernetLayer != nil {
 		eth := ethernetLayer.(*layers.Ethernet)
 		ipv4 := packet.Layer(layers.LayerTypeIPv4)
+		ipv6 := packet.Layer(layers.LayerTypeIPv6)
 
 		switch {
 		// Throw away packets with no source.
@@ -236,8 +237,15 @@ func filter(packet gopacket.Packet, out chan gopacket.Packet) {
 		case eth.DstMAC[0]&0x01 > 0:
 			out <- packet
 
-		// ... or IP broadcast traffic.
+		// ... or IPv4 broadcast traffic.
 		case ipv4 != nil && ipv4.(*layers.IPv4).DstIP.Equal(net.IPv4bcast):
+			out <- packet
+
+		// ... or IPv6 broadcast traffic:
+		case ipv6 != nil && ipv6.(*layers.IPv6).DstIP.Equal(net.IPv6interfacelocalallnodes):
+			out <- packet
+
+		case ipv6 != nil && ipv6.(*layers.IPv6).DstIP.Equal(net.IPv6linklocalallrouters):
 			out <- packet
 		}
 	}
