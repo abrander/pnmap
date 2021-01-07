@@ -237,6 +237,7 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			"_adisk":           "TimeCapsule",
 			"_telnet":          "Telnet",
 			"_sonos":           "Sonos",
+			"_cros_p2p":        "ChromeOS",
 		}
 
 		for _, answer := range msg.Answer {

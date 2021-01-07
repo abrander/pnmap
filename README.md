@@ -20,6 +20,7 @@ Features
 - Detects DHCP hostnames
 - Detects DHCP vendors
 - Detects SSDP user agents
+- Detects Chrome OS
 - Detects clients running Spotify and Spotify Connect speakers
 - Detects Sonos speakers
 - Detects Dropbox clients
