@@ -13,6 +13,10 @@ var (
 
 // OUIVendor will return the owner of a MAC address.
 func OUIVendor(mac string) string {
+	if mac == "" {
+		return ""
+	}
+
 	vendor := ouiToVendor[mac[0:8]]
 
 	if vendor == "" && len(mac) > 1 && privates[mac[1]] {
