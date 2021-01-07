@@ -96,7 +96,7 @@ func tearDownWriter(_ *cobra.Command, _ []string) {
 
 func list(_ *cobra.Command, _ []string) {
 	for _, i := range hostInterfaces {
-		fmt.Printf("%s\n", i.Name)
+		fmt.Printf("%10s %17s %s\n", i.Name, i.HardwareAddr.String(), OUIVendor(i.HardwareAddr.String()))
 	}
 
 	os.Exit(0)
