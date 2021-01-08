@@ -283,7 +283,11 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			case *dns.TXT:
 				nic.Hostnames.add(names[0])
 				if names[1] == "_device-info" {
-					nic.Vendor.add(rr.Txt[0])
+					if strings.HasPrefix(rr.Txt[0], "model=") {
+						nic.Vendor.add(appleHumanModel(rr.Txt[0][6:]))
+					} else {
+						nic.Vendor.add(rr.Txt[0])
+					}
 				}
 			}
 		}
