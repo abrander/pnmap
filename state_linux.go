@@ -10,20 +10,16 @@ import (
 )
 
 func getStateFile() string {
+	homedir, _ := os.UserHomeDir()
 	gateways := findGateways()
-	switch len(gateways) {
-	case 0:
-		fmt.Println("No gateway found, exitting.")
-		os.Exit(0)
-	case 1:
-		homedir, _ := os.UserHomeDir()
+
+	if len(gateways) == 1 {
 		mac := findMacFromIPInArpTable(gateways[0])
 		return fmt.Sprintf("%s/.pnmap/state-%s-%s.json", homedir, mac, gateways[0])
-	default:
-		fmt.Println("Found multiple gateways, exitting.")
-		os.Exit(0)
 	}
-	return ""
+
+	// If we have multiple - or zero - gateways, we fall-back to a generic state file.
+	return fmt.Sprintf("%s/.pnmap/state.json", homedir)
 }
 
 // find gateways
