@@ -197,7 +197,6 @@ func simulate(_ *cobra.Command, args []string) {
 
 	go func() {
 		for packet := range packets {
-			fmt.Fprintf(os.Stderr, "%s\n", packet.String())
 			if !i.NewPacket(packet) && unknownWriter != nil {
 				_ = unknownWriter.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
 			}
