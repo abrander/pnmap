@@ -134,7 +134,7 @@ func monitor(_ *cobra.Command, _ []string) {
 			}
 			now := time.Now()
 			if now.Sub(last).Seconds() > 10 {
-				os.Mkdir(filepath.Dir(statefile), 700)
+				os.Mkdir(filepath.Dir(statefile), 0700)
 				f, _ := os.Create(statefile)
 				j, _ := json.Marshal(i.NICCollection)
 				_, _ = fmt.Fprintf(f, "%s", j)
