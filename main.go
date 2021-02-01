@@ -58,7 +58,7 @@ func init() {
 		Use:     "simulate",
 		Short:   "",
 		Run:     simulate,
-		Args:    cobra.ExactArgs(1),
+		Args:    cobra.MinimumNArgs(1),
 		PreRun:  setupWriter,
 		PostRun: tearDownWriter,
 	}
@@ -164,35 +164,39 @@ func monitor(_ *cobra.Command, _ []string) {
 func simulate(_ *cobra.Command, args []string) {
 	packets := make(chan gopacket.Packet, 10)
 
-	f, err := os.Open(args[0])
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-	defer f.Close()
-
-	reader, err := pcapgo.NewReader(f)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-
 	i := newIntel()
 	g := newGUI()
 
 	i.hostChan = make(chan *NIC, 10)
 
 	go func() {
-		for {
-			data, ci, err := reader.ReadPacketData()
-			if err == io.EOF {
-				break
+		for _, a := range args {
+			f, err := os.Open(a)
+			if err != nil {
+				log.Fatalf(err.Error())
 			}
 
-			packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.Default)
-			packet.Metadata().Timestamp = ci.Timestamp
-			packet.Metadata().CaptureInfo = ci
+			reader, err := pcapgo.NewReader(f)
+			if err != nil {
+				log.Fatalf(err.Error())
+			}
 
-			filter(packet, packets)
+			for {
+				data, ci, err := reader.ReadPacketData()
+				if err == io.EOF {
+					break
+				}
+
+				packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.Default)
+				packet.Metadata().Timestamp = ci.Timestamp
+				packet.Metadata().CaptureInfo = ci
+
+				filter(packet, packets)
+			}
+
+			f.Close()
 		}
+
 	}()
 
 	go func() {
@@ -209,7 +213,7 @@ func simulate(_ *cobra.Command, args []string) {
 		}
 	}()
 
-	err = g.Run()
+	err := g.Run()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
