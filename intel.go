@@ -56,6 +56,21 @@ func (i *intel) getNIC(addr []byte) *NIC {
 	return nic
 }
 
+func (i *intel) findNIC(ip net.IP) *NIC {
+	needle := ip.String()
+
+	for _, nic := range i.NICCollection {
+		for _, ip := range nic.IPs {
+			if ip == needle {
+				fmt.Printf("%s == %s\n", ip, needle)
+				return nic
+			}
+		}
+	}
+
+	return nil
+}
+
 func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 	nic := i.getNIC(source)
 	nic.Applications.add("dhcpv4")
@@ -67,6 +82,10 @@ func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 
 	for _, o := range dhcpv4.Options {
 		switch o.Type {
+		case layers.DHCPOptMessageType:
+			if layers.DHCPMsgType(o.Data[0]) == layers.DHCPMsgTypeOffer {
+				nic.Applications.add("dhcpv4-server")
+			}
 		case layers.DHCPOptClassID:
 			nic.Vendor.add(string(o.Data))
 		case layers.DHCPOptHostname:
@@ -75,6 +94,10 @@ func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 			nic.Hostnames.add(string(o.Data))
 		case layers.DHCPOptRequestIP:
 			nic.IPs.add(net.IP(o.Data).String())
+		case layers.DHCPOptServerID: // Abuse client requests to recognize server.
+			if server := i.findNIC(net.IP(o.Data)); server != nil {
+				server.Applications.add("dhcpv4-server")
+			}
 		}
 	}
 
