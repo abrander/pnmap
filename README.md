@@ -15,7 +15,7 @@ Features
 - Detects IPv4 addresses of hosts
 - Detects IPv6 addresses of hosts
 - Detects IPv6 neighbor discovery
-- Detects IPv4 and IPv6 DHCP client vendor and hostnames
+- Detects IPv4 and IPv6 DHCP client vendor, hostnames and IPs
 - Detects public IPv4 address of natted network
 - Detects DHCP hostnames
 - Detects DHCP vendors

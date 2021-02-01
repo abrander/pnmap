@@ -73,6 +73,8 @@ func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 			nic.Hostnames.add(string(o.Data))
 		case layers.DHCPOpt(81): // Client FQDN
 			nic.Hostnames.add(string(o.Data))
+		case layers.DHCPOptRequestIP:
+			nic.IPs.add(net.IP(o.Data).String())
 		}
 	}
 
