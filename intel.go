@@ -292,6 +292,14 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			}
 		}
 
+	// Mediaroom set top box
+	case 8082:
+		if bytes.Contains(udp.Payload, []byte("x-type: display")) {
+			nic.Applications.add("Mediaroom")
+
+			return true
+		}
+
 	case 10000, 10001:
 		// Nobø Hub
 		// https://www.glendimplex.se/media/15650/nobo-hub-api-v-1-1-integration-for-advanced-users.pdf

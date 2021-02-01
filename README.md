@@ -34,6 +34,7 @@ Features
 - Detects WS-Discovery clients
 - Detects Ubiquiti Discover clients
 - Detects TeamViewer
+- Detects Mediaroom displays
 - Detects Minecraft clients
 - Detects Steam
 - Detects VNC
