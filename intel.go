@@ -66,11 +66,12 @@ func (i *intel) dhcpv4(source net.HardwareAddr, layer gopacket.Layer) bool {
 	}
 
 	for _, o := range dhcpv4.Options {
-
 		switch o.Type {
 		case layers.DHCPOptClassID:
 			nic.Vendor.add(string(o.Data))
 		case layers.DHCPOptHostname:
+			nic.Hostnames.add(string(o.Data))
+		case layers.DHCPOpt(81): // Client FQDN
 			nic.Hostnames.add(string(o.Data))
 		}
 	}
