@@ -62,7 +62,6 @@ func (i *intel) findNIC(ip net.IP) *NIC {
 	for _, nic := range i.NICCollection {
 		for _, ip := range nic.IPs {
 			if ip == needle {
-				fmt.Printf("%s == %s\n", ip, needle)
 				return nic
 			}
 		}
