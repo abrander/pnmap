@@ -20,6 +20,7 @@ Features
 - Detects public IPv4 address of natted network
 - Detects DHCP hostnames
 - Detects DHCP vendors
+- Detects Mikrotek routers
 - Detects SSDP user agents
 - Detects Chrome OS
 - Detects clients running Spotify and Spotify Connect speakers

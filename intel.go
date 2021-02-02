@@ -36,6 +36,7 @@ func newIntel() *intel {
 	i.mux.add(layers.LayerTypeIPv4, i.ipv4)
 	i.mux.add(layers.LayerTypeIPv6, i.ipv6)
 	i.mux.add(layers.LayerTypeUDP, i.udp)
+	i.mux.add(layerTypeMNDP, i.mndp)
 	i.mux.add(layers.LayerTypeICMPv6NeighborAdvertisement, i.ipv6NeighborAdvertisement)
 
 	return i
@@ -444,6 +445,20 @@ func (i *intel) ipv6NeighborAdvertisement(source net.HardwareAddr, layer gopacke
 	nic := i.getNIC(source)
 
 	nic.IPs.add(na.TargetAddress.String())
+
+	return true
+}
+
+func (i *intel) mndp(source net.HardwareAddr, layer gopacket.Layer) bool {
+	mndp := layer.(*MNDP)
+	nic := i.getNIC(source)
+
+	nic.Vendor.add("MikroTek")
+	nic.Vendor.add(mndp.Board)
+	nic.Hostnames.add(mndp.Identity)
+	nic.UserAgents.add(mndp.Platform + "/" + mndp.Version)
+
+	nic.Applications.add("router")
 
 	return true
 }
