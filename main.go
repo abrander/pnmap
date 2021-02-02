@@ -262,11 +262,11 @@ func filter(packet gopacket.Packet, out chan gopacket.Packet) {
 		case ipv4 != nil && ipv4.(*layers.IPv4).DstIP.Equal(net.IPv4bcast):
 			out <- packet
 
-		// ... or IPv6 broadcast traffic:
-		case ipv6 != nil && ipv6.(*layers.IPv6).DstIP.Equal(net.IPv6interfacelocalallnodes):
+		case ipv4 != nil && ipv4.(*layers.IPv4).DstIP.IsLinkLocalMulticast():
 			out <- packet
 
-		case ipv6 != nil && ipv6.(*layers.IPv6).DstIP.Equal(net.IPv6linklocalallrouters):
+		// ... or IPv6 broadcast traffic:
+		case ipv6 != nil && ipv6.(*layers.IPv6).DstIP.IsLinkLocalMulticast():
 			out <- packet
 		}
 	}
