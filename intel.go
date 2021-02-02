@@ -38,6 +38,7 @@ func newIntel() *intel {
 	i.mux.add(layers.LayerTypeUDP, i.udp)
 	i.mux.add(layerTypeMNDP, i.mndp)
 	i.mux.add(layers.LayerTypeICMPv6NeighborAdvertisement, i.ipv6NeighborAdvertisement)
+	i.mux.add(layerTypeUDiscovery, i.ubiquitiDiscovery)
 
 	return i
 }
@@ -336,16 +337,6 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			return true
 		}
 
-		// Ubiquiti discover clients
-		l := len(udp.Payload)
-		if udp.DstPort == 10001 && l > 3 {
-			if plen := udp.Payload[3]; int(plen)+4 == l {
-				nic.Applications.add("ubnt-discover")
-
-				return true
-			}
-		}
-
 	// Dropbox
 	case 17500:
 		dummy := make(map[string]interface{})
@@ -459,6 +450,19 @@ func (i *intel) mndp(source net.HardwareAddr, layer gopacket.Layer) bool {
 	nic.UserAgents.add(mndp.Platform + "/" + mndp.Version)
 
 	nic.Applications.add("router")
+
+	return true
+}
+
+func (i *intel) ubiquitiDiscovery(source net.HardwareAddr, layer gopacket.Layer) bool {
+	ubnt := layer.(*UDiscovery)
+	nic := i.getNIC(source)
+
+	nic.Applications.add("ubnt-discover")
+	nic.Vendor.add("Ubiquiti")
+	nic.Vendor.add(ubnt.Model)
+	nic.UserAgents.add(ubnt.Software)
+	nic.IPs.add(ubnt.IP)
 
 	return true
 }
