@@ -26,7 +26,8 @@ var (
 
 	hostInterfaces []net.Interface
 
-	unknown string
+	unknown     string
+	dissectOnly bool
 
 	unknownFile   *os.File
 	unknownWriter *pcapgo.Writer
@@ -63,6 +64,7 @@ func init() {
 		PostRun: tearDownWriter,
 	}
 	simulateCmd.Flags().StringVarP(&unknown, "unknown", "u", "", "Path to write unknown packets to")
+	simulateCmd.Flags().BoolVarP(&dissectOnly, "dissect-only", "d", false, "Only dissect packets")
 	rootCmd.AddCommand(simulateCmd)
 
 	interfaces = monitorCmd.PersistentFlags().StringArrayP("interface", "i", []string{"all"}, "Interface(s) to monitor")
@@ -165,8 +167,6 @@ func simulate(_ *cobra.Command, args []string) {
 	packets := make(chan gopacket.Packet, 10)
 
 	i := newIntel()
-	g := newGUI()
-
 	i.hostChan = make(chan *NIC, 10)
 
 	go func() {
@@ -197,7 +197,25 @@ func simulate(_ *cobra.Command, args []string) {
 			f.Close()
 		}
 
+		close(packets)
 	}()
+
+	if dissectOnly {
+		go func() {
+			for range i.hostChan {
+			}
+		}()
+
+		for packet := range packets {
+			if !i.NewPacket(packet) && unknownWriter != nil {
+				_ = unknownWriter.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+			}
+		}
+
+		return
+	}
+
+	g := newGUI()
 
 	go func() {
 		for packet := range packets {
