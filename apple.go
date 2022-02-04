@@ -38,6 +38,7 @@ var appleModels = map[string][]string{
 	"iPad Pro (12.9-inch) (3rd generation)": {"J320AP", "J320xAP", "J321AP", "J321xAP"},
 	"iPad Pro (11-inch) (2nd generation)":   {"J417AP", "J418AP"},
 	"iPad Pro (12.9-inch) (4th generation)": {"J420AP", "J421AP"},
+	"iPad Pro (11-inch) (3rd generation)":   {"J517AP", "J517xAP", "J518AP", "J518xAP"},
 
 	"iPad mini":                  {"P105AP", "P106AP", "P107AP"},
 	"iPad mini 2":                {"J85AP", "J86AP", "J87AP"},
