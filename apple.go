@@ -75,6 +75,10 @@ var appleModels = map[string][]string{
 	"iPhone 12":                  {"D53gAP"},
 	"iPhone 12 Pro":              {"D53pAP"},
 	"iPhone 12 Pro Max":          {"D54pAP"},
+	"iPhone 13 Mini":             {"D16AP"},
+	"iPhone 13":                  {"D17AP"},
+	"iPhone 13 Pro":              {"D63AP"},
+	"iPhone 13 Pro Max":          {"D64AP"},
 
 	"eMac G4":                       {"PowerMac4,4", "PowerMac6,4"},
 	"iBook G3":                      {"PowerBook2,1", "PowerBook4,1", "PowerBook4,2", "PowerBook4,3"},
