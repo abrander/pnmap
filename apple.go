@@ -10,11 +10,12 @@ import (
 // https://www.theiphonewiki.com/wiki/Models
 // https://everymac.com/systems/by_capability/mac-specs-by-machine-model-machine-id.html
 var appleModels = map[string][]string{
-	"Apple TV (1st generation)": nil, // unknown id
-	"Apple TV (2nd generation)": {"K66AP"},
-	"Apple TV (3rd generation)": {"J33AP", "J33IAP"},
-	"Apple TV (4th generation)": {"J42dAP"},
-	"Apple TV 4K":               {"J105aAP"},
+	"Apple TV (1st generation)":    nil, // unknown id
+	"Apple TV (2nd generation)":    {"K66AP"},
+	"Apple TV (3rd generation)":    {"J33AP", "J33IAP"},
+	"Apple TV (4th generation)":    {"J42dAP"},
+	"Apple TV 4K":                  {"J105aAP"},
+	"Apple TV 4K (2nd generation)": {"J305AP"},
 
 	"iPad":                  {"K48AP"},
 	"iPad 2":                {"K93AP", "K94AP", "K95AP", "K93AAP"},
@@ -24,11 +25,13 @@ var appleModels = map[string][]string{
 	"iPad (6th generation)": {"J71bAP", "J72bAP"},
 	"iPad (7th generation)": {"J171AP", "J172AP"},
 	"iPad (8th generation)": {"J171aAP", "J172aAP"},
+	"iPad (9th generation)": {"J181AP", "J182AP"},
 
 	"iPad Air":                  {"J71AP", "J72AP", "J73AP"},
 	"iPad Air 2":                {"J81AP", "J82AP"},
 	"iPad Air (3rd generation)": {"J217AP", "J218AP"},
 	"iPad Air (4th generation)": {"J307AP", "J308AP"},
+	"iPad Air (5th generation)": {"J407AP", "J408AP"},
 
 	"iPad Pro (12.9-inch)":                  {"J98aAP", "J99aAP"},
 	"iPad Pro (9.7-inch)":                   {"J127AP", "J128AP"},
@@ -39,12 +42,14 @@ var appleModels = map[string][]string{
 	"iPad Pro (11-inch) (2nd generation)":   {"J417AP", "J418AP"},
 	"iPad Pro (12.9-inch) (4th generation)": {"J420AP", "J421AP"},
 	"iPad Pro (11-inch) (3rd generation)":   {"J517AP", "J517xAP", "J518AP", "J518xAP"},
+	"iPad Pro (12.9-inch) (5th generation)": {"J522AP", "J522xAP", "J523AP", "J523xAP"},
 
 	"iPad mini":                  {"P105AP", "P106AP", "P107AP"},
 	"iPad mini 2":                {"J85AP", "J86AP", "J87AP"},
 	"iPad mini 3":                {"J85mAP", "J86mAP", "J87mAP"},
 	"iPad mini 4":                {"J96AP", "J97AP"},
 	"iPad mini (5th generation)": {"J210AP", "J211AP"},
+	"iPad mini (6th generation)": {"J310AP", "J311AP"},
 
 	"iPhone":                     {"M68AP"},
 	"iPhone 3G":                  {"N82AP"},
@@ -79,6 +84,7 @@ var appleModels = map[string][]string{
 	"iPhone 13":                  {"D17AP"},
 	"iPhone 13 Pro":              {"D63AP"},
 	"iPhone 13 Pro Max":          {"D64AP"},
+	"iPhone SE (3rd generation)": {"D49AP"},
 
 	"eMac G4":                       {"PowerMac4,4", "PowerMac6,4"},
 	"iBook G3":                      {"PowerBook2,1", "PowerBook4,1", "PowerBook4,2", "PowerBook4,3"},
