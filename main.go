@@ -123,7 +123,7 @@ func monitor(_ *cobra.Command, _ []string) {
 	g := newGUI()
 
 	state, _ := ioutil.ReadFile(statefile)
-	json.Unmarshal(state, &i.NICCollection)
+	_ = json.Unmarshal(state, &i.NICCollection)
 
 	i.hostChan = make(chan *NIC, 10)
 
@@ -136,11 +136,11 @@ func monitor(_ *cobra.Command, _ []string) {
 			}
 			now := time.Now()
 			if now.Sub(last).Seconds() > 10 {
-				os.Mkdir(filepath.Dir(statefile), 0700)
+				_ = os.Mkdir(filepath.Dir(statefile), 0700)
 				f, _ := os.Create(statefile)
 				j, _ := json.Marshal(i.NICCollection)
 				_, _ = fmt.Fprintf(f, "%s", j)
-				f.Close()
+				_ = f.Close()
 				last = time.Now()
 			}
 		}
@@ -157,7 +157,6 @@ func monitor(_ *cobra.Command, _ []string) {
 		for _, nic := range i.NICCollection {
 			i.hostChan <- nic
 		}
-		return
 	}()
 
 	_ = g.Run()

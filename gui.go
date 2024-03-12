@@ -21,7 +21,6 @@ type gui struct {
 	app       *tview.Application
 	hostList  *tview.List
 	details   *tview.TextView
-	help      *tview.TextView
 	secondary string
 
 	nics map[string]*NIC
@@ -80,11 +79,11 @@ func newGUI() *gui {
 			case '8':
 				g.secondary = firstseen
 			}
+
 			go func() {
 				for _, nic := range g.nics {
 					g.updateNIC(nic)
 				}
-				return
 			}()
 
 		}

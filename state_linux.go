@@ -25,11 +25,12 @@ func getStateFile() string {
 // find gateways
 func findGateways() []string {
 	file, err := os.Open("/proc/net/route")
-	defer file.Close()
-
 	if err != nil {
 		log.Fatalf("Failed to open /proc/net/route")
 	}
+
+	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 
@@ -52,11 +53,12 @@ func findGateways() []string {
 // find the gateway in the arp table
 func findMacFromIPInArpTable(ip string) string {
 	file, err := os.Open("/proc/net/arp")
-	defer file.Close()
-
 	if err != nil {
 		log.Fatalf("Failed to open /proc/net/route")
 	}
+
+	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 
