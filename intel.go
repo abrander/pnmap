@@ -36,6 +36,7 @@ func newIntel() *intel {
 	i.mux.add(layers.LayerTypeIPv4, i.ipv4)
 	i.mux.add(layers.LayerTypeIPv6, i.ipv6)
 	i.mux.add(layers.LayerTypeUDP, i.udp)
+	i.mux.add(layers.LayerTypeCiscoDiscoveryInfo, i.ciscoDiscoveryInfo)
 	i.mux.add(layerTypeMNDP, i.mndp)
 	i.mux.add(layers.LayerTypeICMPv6NeighborAdvertisement, i.ipv6NeighborAdvertisement)
 	i.mux.add(layerTypeUDiscovery, i.ubiquitiDiscovery)
@@ -425,6 +426,38 @@ func (i *intel) udp(source net.HardwareAddr, layer gopacket.Layer) bool {
 			nic.Applications.add("Spotify")
 
 			return true
+		}
+	}
+
+	return false
+}
+
+func (i *intel) ciscoDiscoveryInfo(source net.HardwareAddr, layer gopacket.Layer) bool {
+	d := layer.(*layers.CiscoDiscoveryInfo)
+	nic := i.getNIC(source)
+
+	for _, a := range d.Addresses {
+		nic.IPs.add(a.String())
+	}
+
+	for _, a := range d.MgmtAddresses {
+		nic.IPs.add(a.String())
+	}
+
+	nic.Vendor.add(d.Platform)
+	nic.Hostnames.add(d.DeviceID)
+
+	for _, v := range strings.Split(d.Version, "\n") {
+		if strings.HasPrefix(v, "Cisco IOS Software") {
+			nic.Applications.add("Cisco IOS")
+		}
+
+		switch {
+		case strings.HasPrefix(v, "Technical Support:"):
+		case strings.HasPrefix(v, "Copyright (c) "):
+
+		default:
+			nic.UserAgents.add(v)
 		}
 	}
 
