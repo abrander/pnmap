@@ -54,6 +54,8 @@ func newGUI() *gui {
 	g.details.SetBorder(true)
 	g.details.SetBorderColor(tcell.ColorGray)
 	g.details.SetTitleColor(tcell.ColorGreenYellow)
+	g.details.SetTextColor(tcell.ColorWhite)
+	g.details.SetDynamicColors(true)
 
 	g.app.SetRoot(flex, true)
 

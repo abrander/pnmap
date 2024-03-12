@@ -36,17 +36,18 @@ func newNIC(addr []byte) *NIC {
 }
 
 func (n *NIC) String() string {
-	output := n.MAC + "\n\n"
+	output := ""
 
-	output += fmt.Sprintf("First seen: %s (%s ago)\n", n.FirstSeen.String(), time.Since(n.FirstSeen).String())
-	output += fmt.Sprintf("Last seen: %s (%s ago)\n", n.LastSeen.String(), time.Since(n.LastSeen).String())
-	output += fmt.Sprintf("Packets: %d\n\n", n.Seen)
+	output += fmt.Sprintf("[yellow]First seen[reset]: [white]%s[reset] ([white]%s[reset] ago)\n", n.FirstSeen.UTC().String(), time.Since(n.FirstSeen).Round(time.Second).String())
+	output += fmt.Sprintf("[yellow]Last seen[reset]: [white]%s[reset] ([white]%s[reset] ago)\n", n.LastSeen.UTC().String(), time.Since(n.LastSeen).Round(time.Second).String())
+	output += fmt.Sprintf("[yellow]Packets[reset]: [white]%d[reset]\n\n", n.Seen)
 
-	output += fmt.Sprintf("IPS: %v\n", n.IPs)
-	output += fmt.Sprintf("Hostnames: %v\n", n.Hostnames)
-	output += fmt.Sprintf("User agents: %v\n", n.UserAgents)
-	output += fmt.Sprintf("Vendor: %v\n", n.Vendor)
-	output += fmt.Sprintf("Applications: %v", n.Applications)
+	output += fmt.Sprintf("[yellow]OUI Vendor[reset]: [white]%s[reset]\n", OUIVendor(n.MAC))
+	output += fmt.Sprintf("[yellow]IPS[reset][reset]: %s\n", n.IPs.String())
+	output += fmt.Sprintf("[yellow]Hostnames[reset]: %s\n", n.Hostnames.String())
+	output += fmt.Sprintf("[yellow]User agents[reset]: %s\n", n.UserAgents.String())
+	output += fmt.Sprintf("[yellow]Vendor[reset]: %s\n", n.Vendor.String())
+	output += fmt.Sprintf("[yellow]Applications[reset]: %s", n.Applications.String())
 
 	return output
 }
