@@ -1,3 +1,4 @@
+//go:build ignore
 // +build ignore
 
 package main
@@ -23,7 +24,7 @@ var ouiToVendor = map[string]string{
 `))
 
 func main() {
-	resp, err := http.Get("https://raw.githubusercontent.com/hdm/mac-ages/main/data/ieee/oui.csv")
+	resp, err := http.Get("https://standards-oui.ieee.org/oui/oui.csv")
 	if err != nil {
 		log.Fatalf("%s", err.Error())
 	}
