@@ -43,7 +43,7 @@ func (n *NIC) String() string {
 	output += fmt.Sprintf("[yellow]Packets[reset]: [white]%d[reset]\n\n", n.Seen)
 
 	output += fmt.Sprintf("[yellow]OUI Vendor[reset]: [white]%s[reset]\n", OUIVendor(n.MAC))
-	output += fmt.Sprintf("[yellow]IPS[reset][reset]: %s\n", n.IPs.String())
+	output += fmt.Sprintf("[yellow]IPS[reset]: %s\n", n.IPs.String())
 	output += fmt.Sprintf("[yellow]Hostnames[reset]: %s\n", n.Hostnames.String())
 	output += fmt.Sprintf("[yellow]User agents[reset]: %s\n", n.UserAgents.String())
 	output += fmt.Sprintf("[yellow]Vendor[reset]: %s\n", n.Vendor.String())
