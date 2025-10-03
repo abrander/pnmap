@@ -15,11 +15,13 @@ func listen(deviceName string, out chan gopacket.Packet) {
 	intf, err := net.InterfaceByName(deviceName)
 	if err != nil {
 		log.Printf("error: %s", err.Error())
+		return
 	}
 
 	conn, err := raw.ListenPacket(intf, syscall.ETH_P_ALL, nil)
 	if err != nil {
 		log.Printf("error: %s", err.Error())
+		return
 	}
 
 	buffer := make([]byte, 65536)

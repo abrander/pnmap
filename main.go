@@ -75,7 +75,7 @@ func setupWriter(_ *cobra.Command, _ []string) {
 	if unknown != "" {
 		unknownFile, err = os.OpenFile(unknown, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
-			log.Fatalf(err.Error())
+			log.Fatalf("%s", err)
 		}
 
 		unknownWriter = pcapgo.NewWriter(unknownFile)
@@ -84,7 +84,7 @@ func setupWriter(_ *cobra.Command, _ []string) {
 		if pos == 0 {
 			err = unknownWriter.WriteFileHeader(65536, layers.LinkTypeEthernet)
 			if err != nil {
-				log.Fatalf(err.Error())
+				log.Fatalf("%s", err)
 			}
 		}
 	}
@@ -172,12 +172,12 @@ func simulate(_ *cobra.Command, args []string) {
 		for _, a := range args {
 			f, err := os.Open(a)
 			if err != nil {
-				log.Fatalf(err.Error())
+				log.Fatalf("%s", err)
 			}
 
 			reader, err := pcapgo.NewReader(f)
 			if err != nil {
-				log.Fatalf(err.Error())
+				log.Fatalf("%s", err)
 			}
 
 			for {
